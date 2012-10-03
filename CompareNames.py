@@ -1,7 +1,8 @@
 import numpy as np
 import shapefile as shp
 import os
-import numpy as np
+import re # regular expressions
+import numpy as np # numpy
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
@@ -54,7 +55,7 @@ def get_all_stream_names():
             
     print "\n\n\n\n......All Stream Names in Watershed.....\n"
     print stream_names
-
+    return stream_names
 
 #get all road names within watershed
 def get_all_road_names():
@@ -77,20 +78,47 @@ def get_all_road_names():
 
 get_comparison_names()
 
-get_all_stream_names()
+sn = get_all_stream_names()
 
 rn = get_all_road_names()
 
-testname = 'forest road 703'
+# original test name
+testname = 'forest roading 865'
+# replace spaces with nothing
+testnameNoSP = re.sub(' ','',testname)
+#  return only numbers from testname
+testnameNUM = re.findall("\d+",testname)
+
+
 fuzztest = []
+fuzztestNoSP = []
 for cn in rn:
 	fuzztest.append(fuzz.ratio(cn,testname))
-	
+	fuzztestNoSP.append(fuzz.ratio(cn,testnameNoSP))
+
 fuzztest = np.array(fuzztest)
 maxrat = np.max(fuzztest)
 indies = np.where(fuzztest == maxrat)
-print '\n\n\n\n\n'
+
+fuzztestNoSP = np.array(fuzztestNoSP)
+maxratNoSP = np.max(fuzztestNoSP)
+indiesNoSP = np.where(fuzztestNoSP == maxratNoSP)
+print '\n\n\n\n\nREGULAR TEST'
 for i in indies[0]:
+	print rn[i]
+print '\n\n\n\n\nNO SPACE TEST'
+for i in indiesNoSP[0]:
 	print rn[i]
 
 
+fuzztestNUM = []
+for cn in rn:
+	fuzztestNUM.append(fuzz.ratio(re.findall("\d+",cn),testnameNUM))
+	fuzztestNUM.append(fuzz.ratio(cn,testnameNUM))
+
+fuzztestNUM = np.array(fuzztestNUM)
+maxratNUM = np.max(fuzztestNUM)
+indiesNUM = np.where(fuzztestNUM == maxratNUM)
+print '\n\n\n\n\nNUM TEST'
+for i in indiesNUM[0]:
+	print rn[i]
