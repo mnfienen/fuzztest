@@ -36,10 +36,11 @@ def get_comparison_names():
     # zip all 4 attributes lists into a tuple
     site_attributes_tuple = zip(site_no, site_names, waterbody_names, site_descriptions)
 
-    print ".....Comparison Attributes from GIS Analysis Shapefile.....\n"
-    for i in sorted(site_attributes_tuple):
-        print i
+    #print ".....Comparison Attributes from GIS Analysis Shapefile.....\n"
+    #for i in sorted(site_attributes_tuple):
+        #print i
 
+    return site_attributes_tuple
 
 # get all stream names within watershed from a dissolved hydro shapefile
 def get_all_stream_names():
@@ -67,7 +68,7 @@ def get_all_road_names():
 
     return road_names
 
-# 
+
 def fuzz_roadnames(roadn):
     #create empty lists for testing
     fuzztest = []
@@ -93,6 +94,7 @@ def fuzz_roadnames(roadn):
     for i in indies[0]:
             print roadn[i]
     print '\n\n\n\n\nNO SPACE TEST'
+    
     for i in indiesNoSP[0]:
             print roadn[i]
 
@@ -132,40 +134,97 @@ def fuzz_stream_names_test(streamn):
     indiesNoSP = np.where(fuzztestNoSP == maxratNoSP)
 
     print '\n\n\n\n\n REGULAR STREAM NAME TEST'
+
     for i in indies[0]:
         print streamn[i]
+
+
+# THIS WILL CHECK TO FIND sites that have been related spatially and compare fuzzy logic on the stream names
+def compare_sites(pointAttributes, streamTestName):
+
+    # get a list of the site IDs and find the max
+    idList = []
+
+    for item in pointAttributes:
+        idList.append(item[0])
+    maxIDnumber = max(idList)
+    
+ 
+    #Pseudo-code --> make an empty list, iterate through the point attributes by site ID number using the maximum point id number as a limiter
+    #Pseudo-code --> if the point id number matches the current iteration number
+    WaterbodyList = []
+    IDNumberList = []
+    streamTest = []
+
+    j = 0
+    k = 0
+    while j <= maxIDnumber:
+        for row in pointAttributes:
+            if row[0] == j:
+                WaterbodyList.append(row[2])
+                WaterbodyList.append(fuzz.ratio(row[2], streamTestName))
+                
+                IDNumberList.append(row[0])
+                #streamTest.append(fuzz.ratio(row[2],streamTestName))
+            
+        print WaterbodyList
+        print IDNumberList
+            
+        #print streamTest
+                
+             
+        j+= 1
+
+        
+    
+
+    
+
+
+   
+
     
     
+
+
+    
+    
+        
+
+
 
 
 # ########
 # MAIN
 # ########
 
-get_comparison_names()
 
-#gets stream names from stream name function
+# read in shapefile attributes site#, site name, waterbody, site description
+pointAttributes = get_comparison_names()
+#read in stream names from shapefile
 streamn = get_all_stream_names()
-
-#gets road names from road name function
+#read in road names from shapefile
 roadn = get_all_road_names()
 
 
-# original road test name
+# insert original road test name
 testname = 'caroline'
 # replace spaces with nothing
 testnameNoSP = re.sub(' ','',testname)
 #  return only numbers from testname
 testnameNUM = re.findall("\d+",testname)
 
-#original stream test name
-streamTestName = 'unnamed tyler forks'
+# insert original stream test name
+streamTestName = 'tyler forks'
 streamTestNameNoSP = re.sub(' ','',streamTestName)
 
 
 
-# run fuzzy tests
+#### run fuzzy tests
 fuzz_roadnames(roadn)
 #fuzz_roadnames_num_test(roadn)
 
 fuzz_stream_names_test(streamn)
+
+print "\n\n\n\nRESULTS FROM COMPAREPOINTS FUNCTION"
+compare_sites(pointAttributes, streamTestName)
