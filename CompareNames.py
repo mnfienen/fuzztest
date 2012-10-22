@@ -142,7 +142,7 @@ def fuzz_stream_names_test(streamn):
 # THIS WILL CHECK TO FIND sites that have been related spatially and compare fuzzy logic on the stream names
 def compare_sites(pointAttributes, streamTestName):
 
-    # get a list of the site IDs and find the max
+    # get a list of the site IDs and find the max.
     idList = []
 
     for item in pointAttributes:
@@ -150,46 +150,45 @@ def compare_sites(pointAttributes, streamTestName):
     maxIDnumber = max(idList)
     
  
-    #Pseudo-code --> make an empty list, iterate through the point attributes by site ID number using the maximum point id number as a limiter
-    #Pseudo-code --> if the point id number matches the current iteration number
+    #use ID number range to loop through spatially-associated points
+    # perform a fuzzy match on the waterbody names of each spatially associated point
     WaterbodyList = []
     IDNumberList = []
     streamTest = []
 
+
     j = 0
-    k = 0
+    
     while j <= maxIDnumber:
         for row in pointAttributes:
             if row[0] == j:
+                
+                
+                #print row[2], row[0], fuzz.ratio(row[2], streamTestName)
+
                 WaterbodyList.append(row[2])
-                WaterbodyList.append(fuzz.ratio(row[2], streamTestName))
-                
                 IDNumberList.append(row[0])
-                #streamTest.append(fuzz.ratio(row[2],streamTestName))
-            
-        print WaterbodyList
-        print IDNumberList
-            
-        #print streamTest
+
+
                 
-             
+                #WaterbodyList.append(fuzz.ratio(row[2], streamTestName)
+                
+
+
         j+= 1
+    
+    combinedlist = zip(IDNumberList, WaterbodyList)
+    print type(combinedlist), combinedlist
+
+        
+                #if len(WaterbodyList) > 0:
+                    #streamTest.append(fuzz.ratio(WaterbodyList[-1], row[2]
 
         
     
 
     
 
-
-   
-
-    
-    
-
-
-    
-    
-        
 
 
 
@@ -215,7 +214,7 @@ testnameNoSP = re.sub(' ','',testname)
 testnameNUM = re.findall("\d+",testname)
 
 # insert original stream test name
-streamTestName = 'tyler forks'
+streamTestName = 'bad river'
 streamTestNameNoSP = re.sub(' ','',streamTestName)
 
 
