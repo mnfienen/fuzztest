@@ -1,3 +1,15 @@
+###########################
+# Jim,
+#The test sites (point data) in the 150m buffer intersect have already been grouped together base on their proximity using ArcGIS.
+#a test site group has the same ID number if they are within the search radius.
+#However, just because the test sites are within 150m of one another does not mean that they are located on the same stream.  (ex. samples could be taken from two different tributaries just upstream of a confluence)
+#The goal of this script is to verify the results of the 150m spatial grouping using strings in the attributes such as road name and waterbody.
+# We're using a fuzzy string matching module (fuzzy wuzzy) to find partial matches in case streams and roads are attributed with abbreviations such as Javorski Creek vs. Javorsky Cr.
+# I particularly need help with the compare_sites function.  I want to compare the site attributes within a spatial group to make sure they all have the same waterbody name.
+# If there is a different waterbody name in the group it should be removed and placed into a new shapefile group.
+###########################
+
+
 import numpy as np
 import shapefile as shp
 import os
@@ -99,9 +111,8 @@ def fuzz_roadnames(roadn):
             print roadn[i]
 
 
-
+#searches all roads in watershed to find the best match for the input value
 def fuzz_roadnames_num_test(roadn):
-    # fuzzy number test
     fuzztestNUM = []
     for cn in roadn:
             fuzztestNUM.append(fuzz.ratio(re.findall("\d+",cn),testnameNUM))
@@ -116,7 +127,7 @@ def fuzz_roadnames_num_test(roadn):
 
 
 
-
+# searches all streams in the watershed to find the best match for the input value
 def fuzz_stream_names_test(streamn):
     fuzztest = []
     fuzztestNoSP = []
@@ -140,6 +151,7 @@ def fuzz_stream_names_test(streamn):
 
 
 # THIS WILL CHECK TO FIND sites that have been related spatially and compare fuzzy logic on the stream names
+# want to compare waterbody names within each ID group.  If the waterbody name within an attribute group is different (look at ID group 3 and 10 when you run script) it should be removed from the group and placed in a new one.
 def compare_sites(pointAttributes, streamTestName):
 
     # get a list of the site IDs and find the max.
@@ -157,27 +169,28 @@ def compare_sites(pointAttributes, streamTestName):
     streamTest = []
 
 
-    j = 0
-    
-    while j <= maxIDnumber:
+    i = 0
+    print "groupid, waterbody, fuzzy match ratio"
+    while i <= maxIDnumber:
         for row in pointAttributes:
-            if row[0] == j:
+            if row[0] == i:
                 
                 
-                #print row[2], row[0], fuzz.ratio(row[2], streamTestName)
+                print row[0], row[2], fuzz.ratio(row[2],streamTestName)
 
                 WaterbodyList.append(row[2])
                 IDNumberList.append(row[0])
 
 
                 
-                #WaterbodyList.append(fuzz.ratio(row[2], streamTestName)
+                # THIS IS WHERE THE COMPARISON SHOULD TAKE PLACE.  maybe an inner loop to compare all attributes with group id of 0..1..2 etc.?
                 
 
 
-        j+= 1
+        i+= 1
     
     combinedlist = zip(IDNumberList, WaterbodyList)
+    print "\n\n\n CoOMBINED LIST OF GROUPID AND WATERBODY"
     print type(combinedlist), combinedlist
 
         
@@ -207,7 +220,7 @@ roadn = get_all_road_names()
 
 
 # insert original road test name
-testname = 'caroline'
+testname = 'hwy 77'
 # replace spaces with nothing
 testnameNoSP = re.sub(' ','',testname)
 #  return only numbers from testname
@@ -219,7 +232,7 @@ streamTestNameNoSP = re.sub(' ','',streamTestName)
 
 
 
-#### run fuzzy tests
+#run fuzzy tests
 fuzz_roadnames(roadn)
 #fuzz_roadnames_num_test(roadn)
 
